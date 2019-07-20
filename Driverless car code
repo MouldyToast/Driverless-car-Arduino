@@ -1,4 +1,4 @@
-//I'm fairly new to coding and this is 2-3 days of problem solving, I learnt how to do call on function GetDistance (); instead of writing the same code 15 times. 
+//I'm fairly new to coding and this is 2-3 days of problem solving.
 //Any help is appreciated:)
 
 #include <Servo.h> //Loading Servo.h
