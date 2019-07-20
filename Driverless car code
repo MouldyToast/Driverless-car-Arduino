@@ -1,12 +1,9 @@
-//I'm fairly new to coding and this is 2-3 days of problem solving.
-//Any help is appreciated:)
-
 #include <Servo.h> //Loading Servo.h
 
-//Ultrasonic sensor sensor
+//Radar sensor
 int trigPin = A0; //TrigPin is pin 13
 int echoPin = A1; //Assign echoPin to to pin 11
-int delayTime = 120; //A delay to allow the servo to move between the 3 locations (Left,Middle and Right) O
+int delayTime = 160; //A delay to allow the servo to move between the 3 locations (Left,Middle and Right) O
 
 float distanceFront; //Distance from the front of the sensor
 float distanceLeft;  //Distance from the left of the sensor
@@ -16,13 +13,13 @@ float forwardsDelay;  //The delay that the motors will be on when moving forward
 float forwardsDelayLeft;  //This will be used to work out the distance, the Left sensor measurement will be after moving forward with the forwardsDelay
 float forwardsDelayRight; //This will be used to work out the distance, the Right sensor measurement will be after moving forward with the forwardsDelay
 
-//Ultrasonic sensor
+//Radar sensor
 float pingTime;  //Declare a variable for future calculations
 float targetDistanceFront; //Distance to target in mm
 float targetDistanceLeft;  //Target distance for the left
 float targetDistanceRight; //Target distance from the right
 float speedOfSound = 343260; //Speed of sound in mm or 343 in metre's
-float maxDistance = 140;     //The maxDistance to avoid driving into objects
+float maxDistance = 180;     //The maxDistance to avoid driving into objects
 
 //MOTORS
 int enA = 13;
@@ -88,8 +85,8 @@ void motorInitiation() {
   digitalWrite(in3, LOW);
   digitalWrite(in4, HIGH);
 } //** End of copied code
-  //**
-  //**
+//**
+//**
 
 
 
@@ -174,27 +171,38 @@ void loop() {
   //
   //
   //
-  //This is Drive forwards
+  //This is driveForwards
 
   if (targetDistanceFront >= maxDistance & targetDistanceLeft >= maxDistance & targetDistanceRight >= maxDistance) {
 
     //Forwards measurement
-    forwardsDelay = (2.5 * targetDistanceFront) - (maxDistance * 2.5);    //(Turns taget distance into milliseconds)-(turns max distance into milliseconds)-120 is as safetyback up
+    forwardsDelay = (2.5 * targetDistanceFront) - (maxDistance * 2.5);    //(Turns taget distance into milliseconds)-(turns max distance into milliseconds) is as safetyback up
     distanceFront = (forwardsDelay / 1000) * 400;                               //distanceFront is used to measure the distance that the car will travelled.
 
     //Left measurement
-    forwardsDelayLeft = (2.5 * targetDistanceLeft) - (maxDistance * 2.5); //(Turns taget distance into milliseconds)-(turns max distance into milliseconds)-120 is as safetyback up
+    forwardsDelayLeft = (2.5 * targetDistanceLeft) - (maxDistance * 2.5); //(Turns taget distance into milliseconds)-(turns max distance into milliseconds) is as safetyback up
     distanceLeft = (forwardsDelayLeft / 1000) * 400; //distanceLeft is used to measure the distance that the car will travelled.
 
     //Right mreasurement
-    forwardsDelayRight = (2.5 * targetDistanceRight) - (maxDistance * 2.5); //(Turns taget distance into milliseconds)-(turns max distance into milliseconds)-120 is as safetyback up
+    forwardsDelayRight = (2.5 * targetDistanceRight) - (maxDistance * 2.5); //(Turns taget distance into milliseconds)-(turns max distance into milliseconds) is as safetyback up
     distanceRight = (forwardsDelayRight / 1000) * 400;                             //distanceLeft is used to measure the distance that the car will travelled.
 
-    //I tried adding this if statement because a large forwardsDelay reading would drive into objects on the left and right
-    if (forwardsDelay >= 400) {
-      forwardsDelay = 300;
+    if(distanceLeft<distanceFront&distanceLeft<distanceRight&distanceLeft>maxDistance){
+      forwardsDelay=forwardsDelayLeft;
     }
 
+    if (distanceRight<distanceFront&distanceRight<distanceLeft&distanceLeft>maxDistance){
+      forwardsDelay=forwardsDelayRight;
+    }
+
+    if (forwardsDelay>1000){
+      forwardsDelay=1000;
+    }
+
+    if (forwardsDelay>180){
+      forwardsDelay=(forwardsDelay-125);
+    }
+     
     leftMotor.Drive(255); //Turns left motor on to drive forwards
     rightMotor.Drive(255); //turns right motor on to drive forwards
 
@@ -239,12 +247,38 @@ void loop() {
   //
   //
   //
-  //This drives between gaps
-  if (targetDistanceFront >= maxDistance && targetDistanceLeft >= 100 && targetDistanceRight >= 100) {
+  //This is driveBetweenGaps
+  if (targetDistanceFront >= maxDistance && targetDistanceLeft >= 80 && targetDistanceRight >= 80) {
+    //Forwards measurement
+    forwardsDelay = (2.5 * targetDistanceFront) - (80 * 2.5);    //(Turns taget distance into milliseconds)-(turns max distance into milliseconds) is as safetyback up
+    distanceFront = (forwardsDelay / 1000) * 400;                               //distanceFront is used to measure the distance that the car will travelled.
 
+    //Left measurement
+    forwardsDelayLeft = (2.5 * targetDistanceLeft) - (80 * 2.5); //(Turns taget distance into milliseconds)-(turns max distance into milliseconds) is as safetyback up
+    distanceLeft = (forwardsDelayLeft / 1000) * 400; //distanceLeft is used to measure the distance that the car will travelled.
+
+    //Right mreasurement
+    forwardsDelayRight = (2.5 * targetDistanceRight) - (80 * 2.5); //(Turns taget distance into milliseconds)-(turns max distance into milliseconds) is as safetyback up
+    distanceRight = (forwardsDelayRight / 1000) * 400;                             //distanceLeft is used to measure the distance that the car will travelled.
+
+    if(distanceLeft<distanceFront&distanceLeft<distanceRight&distanceLeft>maxDistance){
+      forwardsDelay=forwardsDelayLeft;
+    }
+
+    if (distanceRight<distanceFront&distanceRight<distanceLeft&distanceLeft>maxDistance){
+      forwardsDelay=forwardsDelayRight;
+    }
+
+    if (forwardsDelay>500){
+      forwardsDelay=500;
+    }
+
+    if (forwardsDelay>180){
+      forwardsDelay=(forwardsDelay-62);
+    }
     leftMotor.Drive(255);     //Turn the left motor on forwards
     rightMotor.Drive(255);    //Turn the right motor on forwards
-    delay(200);               //Slowly move through gap
+    delay(forwardsDelay);               //Slowly move through gap
     leftMotor.Drive(0);       //Turn off Left motor
     rightMotor.Drive(0);      //Turn off right motor
 
@@ -310,5 +344,3 @@ void loop() {
   }
 
 }
-
-
