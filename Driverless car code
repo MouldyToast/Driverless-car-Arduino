@@ -68,7 +68,6 @@ class Motor {
 
 Motor rightMotor = Motor(enA, in1, in2);
 Motor leftMotor = Motor(enB, in3, in4);
-Servo myservo; // create servo object to control a servo
 
 void motorInitiation() {
   pinMode(enA, OUTPUT);
