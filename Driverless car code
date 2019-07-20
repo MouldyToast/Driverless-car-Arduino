@@ -1,8 +1,6 @@
 //I'm fairly new to coding and this is 2-3 days of problem solving, I learnt how to do call on function GetDistance (); instead of writing the same code 15 times. 
 //Any help is appreciated:)
 
-//At the moment the delayForwards which moves it forwardswill randomly break around after 6-10 times and it will drive forwards an unlimited amount,stop moving the sensor and stop checking for new distances.
-//I've tried adding if statements to reduce the delayForwards which will work and then stop working for some reason.
 #include <Servo.h> //Loading Servo.h
 
 //Ultrasonic sensor sensor
@@ -99,7 +97,6 @@ void motorInitiation() {
 void getDistance() {
   //Move Servo to first position and check distance
   pos = 180;  //Set pos to 180
-  myServo.attach(servoPin);    //Attach Servo
   myServo.write(pos);          //Move Servo to Pos
   delay(delayTime);            //Delay to allow Servo to move
   digitalWrite(trigPin, LOW);  //set the trigPin to low
@@ -119,7 +116,6 @@ void getDistance() {
 
   //Move Servo to second position and check distance
   pos = 88;
-  myServo.attach(servoPin);
   myServo.write(pos);
   delay(delayTime);
   //Turn on and off Sensor to get a reading
@@ -139,7 +135,6 @@ void getDistance() {
 
   //Move Servo to third position and check distance
   pos = 0;
-  myServo.attach(servoPin);
   myServo.write(pos);
   delay(delayTime);
 
@@ -159,7 +154,6 @@ void getDistance() {
 
   //Move servo back to centre position as so that it can easily move to first poisiton again
   pos = 88;
-  myServo.attach(servoPin);
   myServo.write(pos);
   delay(50); //Small delay to start the movement of the servo
 
@@ -183,19 +177,17 @@ void loop() {
   //This is Drive forwards
 
   if (targetDistanceFront >= maxDistance & targetDistanceLeft >= maxDistance & targetDistanceRight >= maxDistance) {
-    leftMotor.Drive(0);
-    rightMotor.Drive(0);
 
     //Forwards measurement
-    forwardsDelay = (2.5 * targetDistanceFront) - (maxDistance * 2.5) - 120;    //(Turns taget distance into milliseconds)-(turns max distance into milliseconds)-120 is as safetyback up
+    forwardsDelay = (2.5 * targetDistanceFront) - (maxDistance * 2.5);    //(Turns taget distance into milliseconds)-(turns max distance into milliseconds)-120 is as safetyback up
     distanceFront = (forwardsDelay / 1000) * 400;                               //distanceFront is used to measure the distance that the car will travelled.
 
     //Left measurement
-    forwardsDelayLeft = (2.5 * targetDistanceLeft) - (maxDistance * 2.5) - 120; //(Turns taget distance into milliseconds)-(turns max distance into milliseconds)-120 is as safetyback up
+    forwardsDelayLeft = (2.5 * targetDistanceLeft) - (maxDistance * 2.5); //(Turns taget distance into milliseconds)-(turns max distance into milliseconds)-120 is as safetyback up
     distanceLeft = (forwardsDelayLeft / 1000) * 400; //distanceLeft is used to measure the distance that the car will travelled.
 
     //Right mreasurement
-    forwardsDelayRight = (2.5 * targetDistanceRight) - (maxDistance * 2.5) - 120; //(Turns taget distance into milliseconds)-(turns max distance into milliseconds)-120 is as safetyback up
+    forwardsDelayRight = (2.5 * targetDistanceRight) - (maxDistance * 2.5); //(Turns taget distance into milliseconds)-(turns max distance into milliseconds)-120 is as safetyback up
     distanceRight = (forwardsDelayRight / 1000) * 400;                             //distanceLeft is used to measure the distance that the car will travelled.
 
     //I tried adding this if statement because a large forwardsDelay reading would drive into objects on the left and right
