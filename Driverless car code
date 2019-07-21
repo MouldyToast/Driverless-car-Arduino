@@ -165,7 +165,7 @@ void loop() {
     distanceFront = (forwardsDelay / 1000) * 400;                               //distanceFront is used to measure the distance that the car will travelled.
 
     //Left measurement
-    forwardsDelayLeft = (2.5 * targetDistanceLeft) - (maxDistance * 2.5); //(Turns taget distance into milliseconds)-(turns max distance into milliseconds)
+    forwardsDelayLeft = targetDistanceFront - maxDistance; //(Turns taget distance into milliseconds)-(turns max distance into milliseconds)
     distanceLeft = (forwardsDelayLeft / 1000) * 400; //distanceLeft is used to measure the distance that the car will travelled.
 
     //Right measurement
