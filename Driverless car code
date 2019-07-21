@@ -5,6 +5,7 @@ int trigPin = A0; //TrigPin is pin 13
 int echoPin = A1; //Assign echoPin to pin 11
 int delayTime = 160; //A delay to allow the servo to move between the 3 locations (Left,Middle and Right)
 
+float targetDistance; //Defining target distance as it wasn't defined
 float distanceFront; //Distance from the front of the sensor
 float distanceLeft;  //Distance from the left of the sensor
 float distanceRight; //Distance from the right of the sensor
@@ -100,7 +101,7 @@ void getDistance() {
   MotorMeasurement();
 
   //Turn on and off sensor to get a reading
-  ping = calucatePing();
+  ping = calculatePing();
 
   targetDistanceLeft = calcDistance(ping);
 
@@ -114,7 +115,7 @@ void getDistance() {
   //Turn on and off Sensor to get a reading
   MotorMeasurement();
 
-  ping = calucatePing();
+  ping = calculatePing();
 
   targetDistanceFront = calcDistance(ping);
 
@@ -129,7 +130,7 @@ void getDistance() {
   MotorMeasurement();
 
   //Turn on and off sensor to get a reading
-  ping = calucatePing();
+  ping = calculatePing();
 
   targetDistanceRight = calcDistance(ping);
 
@@ -140,8 +141,6 @@ void getDistance() {
   pos = 88;
   myServo.write(pos);
   delay(50); //Small delay to start the movement of the servo
-
-
 
 }
 
@@ -155,23 +154,22 @@ void setup() {
 }
 
 void loop() {
-  //
-  //
-  //
+
+
   //This is driveForwards
 
   if (targetDistanceFront >= maxDistance & targetDistanceLeft >= maxDistance & targetDistanceRight >= maxDistance) {
 
     //Forwards measurement
-    forwardsDelay = targetDistanceFront - maxDistance;    //(Turns target distance into milliseconds)-(turns max distance into milliseconds) is as safetyback up
+    forwardsDelay = targetDistanceFront - maxDistance;    //(Turns target distance into milliseconds)-(turns max distance into milliseconds) 
     distanceFront = (forwardsDelay / 1000) * 400;                               //distanceFront is used to measure the distance that the car will travelled.
 
     //Left measurement
-    forwardsDelayLeft = (2.5 * targetDistanceLeft) - (maxDistance * 2.5); //(Turns taget distance into milliseconds)-(turns max distance into milliseconds) is as safetyback up
+    forwardsDelayLeft = (2.5 * targetDistanceLeft) - (maxDistance * 2.5); //(Turns taget distance into milliseconds)-(turns max distance into milliseconds)
     distanceLeft = (forwardsDelayLeft / 1000) * 400; //distanceLeft is used to measure the distance that the car will travelled.
 
     //Right measurement
-    forwardsDelayRight = targetDistanceRight - maxDistance //(Turns taget distance into milliseconds)-(turns max distance into milliseconds) is as safetyback up
+    forwardsDelayRight = targetDistanceRight - maxDistance; //(Turns taget distance into milliseconds)-(turns max distance into milliseconds)
     distanceRight = (forwardsDelayRight / 1000) * 400;                             //distanceLeft is used to measure the distance that the car will travelled.
 
     if(distanceLeft<distanceFront&distanceLeft<distanceRight&distanceLeft>maxDistance){
@@ -204,7 +202,6 @@ void loop() {
   }
 
 
-
   //This is drive left if front reading is to close and left is distance is >then the right distance
 
   if (targetDistanceFront <= maxDistance & targetDistanceRight <= targetDistanceLeft) {
@@ -219,8 +216,8 @@ void loop() {
   }
 
 
-
   //This is drive left if front reading to close and right is distance is > then the left distance
+  
   if (targetDistanceFront <= maxDistance & targetDistanceLeft <= targetDistanceRight) {
 
     leftMotor.Drive(255);   //Turn the left motor on forwards
@@ -233,8 +230,8 @@ void loop() {
   }
 
 
-
   //This is driveBetweenGaps
+  
   if (targetDistanceFront >= maxDistance && targetDistanceLeft >= 80 && targetDistanceRight >= 80) {
     //Forwards measurement
     forwardsDelay = (2.5 * targetDistanceFront) - (80 * 2.5);    //(Turns taget distance into milliseconds)-(turns max distance into milliseconds) is as safetyback up
@@ -273,8 +270,8 @@ void loop() {
   }
 
 
-
   //Turn left is front is blocked and left is greater then right
+  
   if (targetDistanceFront <= maxDistance & targetDistanceLeft >= targetDistanceRight) {
 
     leftMotor.Drive(-255);    //Turns the left motor on reverse
@@ -287,8 +284,8 @@ void loop() {
   }
 
 
-
   //Turn left is something blocking left
+  
   if (targetDistanceRight <= maxDistance) {
 
     leftMotor.Drive(-255);    //Turns the left motor on reverse
@@ -302,8 +299,8 @@ void loop() {
   }
 
 
-
   //Turn right if front is blocked and right is greater then left
+  
   if (targetDistanceFront <= maxDistance & targetDistanceRight >= targetDistanceLeft) {
 
     leftMotor.Drive(255);     //Turn left motor forwards
@@ -317,8 +314,8 @@ void loop() {
   }
 
 
-
   //Turn right
+  
   if (targetDistanceLeft <= maxDistance) {
 
     leftMotor.Drive(255);       //Turn left motor forwards
@@ -332,13 +329,11 @@ void loop() {
 
 }
 
-
 float calculatePing() {
   pingTime = pulseIn(echoPin, HIGH);             //measure pingTime
   pingTime = pingTime / 1000000.;                //converts microSeconds to seconds
   return pingTime;
 }
-
 
 void MotorMeasurement() {
   digitalWrite(trigPin, LOW); //set the trigPin to low
@@ -348,7 +343,6 @@ void MotorMeasurement() {
   digitalWrite(trigPin, LOW); // return trigpin to low
   delayMicroseconds(15);      // delay again.
 }
-
 
 float calcDistance (float ping) {
   targetDistance = speedOfSound * ping; //Measure distance traveled in seconds.
