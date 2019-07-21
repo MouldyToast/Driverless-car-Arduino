@@ -2,8 +2,8 @@
 
 //Radar sensor
 int trigPin = A0; //TrigPin is pin 13
-int echoPin = A1; //Assign echoPin to to pin 11
-int delayTime = 160; //A delay to allow the servo to move between the 3 locations (Left,Middle and Right) O
+int echoPin = A1; //Assign echoPin to pin 11
+int delayTime = 160; //A delay to allow the servo to move between the 3 locations (Left,Middle and Right)
 
 float distanceFront; //Distance from the front of the sensor
 float distanceLeft;  //Distance from the left of the sensor
@@ -18,23 +18,27 @@ float pingTime;  //Declare a variable for future calculations
 float targetDistanceFront; //Distance to target in mm
 float targetDistanceLeft;  //Target distance for the left
 float targetDistanceRight; //Target distance from the right
-float speedOfSound = 343260; //Speed of sound in mm or 343 in metre's
-float maxDistance = 180;     //The maxDistance to avoid driving into objects
+float speedOfSound = 343260; //Speed of sound in mm or 343 in meter's
+float maxDistance = 180;     //The maximum Distance to avoid driving into objects
 
 //MOTORS
-int enA = 13;
-int in1 = 12;
-int in2 = 11;
-int in3 = 7;
-int in4 = 6;
-int enB = 5;
+// Pins for motor A
+int enablePinRightMotor = 13;
+int directionPin1RightMotor = 12;
+int directionPin2RightMotor = 11;
+// Pins for motor B
+int enablePinLeftMotor = 5;
+int directionPin1LeftMotor = 7;
+int directionPin2LeftMotor = 6;
 
 //Servo
 Servo myServo;         //assigns myServo as a Servo under the <Servo.h>
 int pos;               //Assign pos as a writeable variable holding nothing
 int servoPin = 2;      //Assign ServoPin to pin 2
-//**
-//**
+
+//Other variables
+float ping;
+
 //**Code that I copied as it's my first time using motors
 class Motor {
 
@@ -66,28 +70,24 @@ class Motor {
     }
 };
 
-Motor rightMotor = Motor(enA, in1, in2);
-Motor leftMotor = Motor(enB, in3, in4);
-Servo myservo; // create servo object to control a servo
+Motor rightMotor = Motor(enablePinRightMotor, directionPin1RightMotor, directionPin2RightMotor);
+Motor leftMotor = Motor(enablePinLeftMotor, directionPin1LeftMotor, directionPin2LeftMotor);
 
 void motorInitiation() {
-  pinMode(enA, OUTPUT);
-  pinMode(in1, OUTPUT);
-  pinMode(in2, OUTPUT);
-  pinMode(enB, OUTPUT);
-  pinMode(in3, OUTPUT);
-  pinMode(in4, OUTPUT);
+  pinMode(enablePinRightMotor, OUTPUT);
+  pinMode(directionPin1RightMotor, OUTPUT);
+  pinMode(directionPin2RightMotor, OUTPUT);
+  pinMode(enablePinLeftMotor, OUTPUT);
+  pinMode(directionPin1LeftMotor, OUTPUT);
+  pinMode(directionPin2LeftMotor, OUTPUT);
   // Set initial direction and speed
-  digitalWrite(enA, LOW);
-  digitalWrite(enB, LOW);
-  digitalWrite(in1, LOW);
-  digitalWrite(in2, HIGH);
-  digitalWrite(in3, LOW);
-  digitalWrite(in4, HIGH);
+  digitalWrite(enablePinRightMotor, LOW);
+  digitalWrite(enablePinLeftMotor, LOW);
+  digitalWrite(directionPin1RightMotor, LOW);
+  digitalWrite(directionPin2RightMotor, HIGH);
+  digitalWrite(directionPin1LeftMotor, LOW);
+  digitalWrite(directionPin2LeftMotor, HIGH);
 } //** End of copied code
-//**
-//**
-
 
 
 //Function used to get distance reading, it's my first time using this function
@@ -96,18 +96,14 @@ void getDistance() {
   pos = 180;  //Set pos to 180
   myServo.write(pos);          //Move Servo to Pos
   delay(delayTime);            //Delay to allow Servo to move
-  digitalWrite(trigPin, LOW);  //set the trigPin to low
-  delayMicroseconds(2000);     // pause in Microseconds
-  digitalWrite(trigPin, HIGH); // set trigPin to HIGH
-  delayMicroseconds(15);       // pause for 15 microseconds
-  digitalWrite(trigPin, LOW);  // retuun trigpin to low
-  delayMicroseconds(15);       // delay again.
+
+  MotorMeasurement();
 
   //Turn on and off sensor to get a reading
-  pingTime = pulseIn(echoPin, HIGH);            //Measure pingTime
-  pingTime = pingTime / 1000000.;               //Converts microSeconds to seconds
-  targetDistanceLeft = speedOfSound * pingTime; //Measure distance traveled in seconds.
-  targetDistanceLeft = targetDistanceLeft / 2;  //Divides distance by 2 because the sound travels forwards and backwards before giving a signal
+  ping = calucatePing();
+
+  targetDistanceLeft = calcDistance(ping);
+
   Serial.print("The left distance is: ");       //Checking read distance
   Serial.println(targetDistanceLeft);
 
@@ -116,17 +112,12 @@ void getDistance() {
   myServo.write(pos);
   delay(delayTime);
   //Turn on and off Sensor to get a reading
-  digitalWrite(trigPin, LOW); //set the trigPin to low
-  delayMicroseconds(2000);    // pause in Microseconds
-  digitalWrite(trigPin, HIGH);// set trigPin to HIGH
-  delayMicroseconds(15);      // pause for 15 microseconds
-  digitalWrite(trigPin, LOW); // retuun trigpin to low
-  delayMicroseconds(15);      // delay again.
+  MotorMeasurement();
 
-  pingTime = pulseIn(echoPin, HIGH);             //measure pingTime
-  pingTime = pingTime / 1000000.;                //converts microSeconds to seconds
-  targetDistanceFront = speedOfSound * pingTime; // measure distance traveled in seconds.
-  targetDistanceFront = targetDistanceFront / 2; // divides distance by 2 because the sound travels forwards and backwards before giving a signal
+  ping = calucatePing();
+
+  targetDistanceFront = calcDistance(ping);
+
   Serial.print("The front distance is: ");
   Serial.println(targetDistanceFront);
 
@@ -135,17 +126,13 @@ void getDistance() {
   myServo.write(pos);
   delay(delayTime);
 
-  digitalWrite(trigPin, LOW); //set the trigPin to low
-  delayMicroseconds(2000);    // pause in Microseconds
-  digitalWrite(trigPin, HIGH);// set trigPin to HIGH
-  delayMicroseconds(15);      // pause for 15 microseconds
-  digitalWrite(trigPin, LOW); // retuun trigpin to low
-  delayMicroseconds(15);      // delay again.
+  MotorMeasurement();
 
-  pingTime = pulseIn(echoPin, HIGH);             //measure pingTime
-  pingTime = pingTime / 1000000.;                //converts microSeconds to seconds
-  targetDistanceRight = speedOfSound * pingTime; // measure distance traveled in seconds.
-  targetDistanceRight = targetDistanceRight / 2; // divides distance by 2 because the sound travels forwards and backwards before giving a signal
+  //Turn on and off sensor to get a reading
+  ping = calucatePing();
+
+  targetDistanceRight = calcDistance(ping);
+
   Serial.print("The right distance is: ");
   Serial.println(targetDistanceRight);
 
@@ -176,15 +163,15 @@ void loop() {
   if (targetDistanceFront >= maxDistance & targetDistanceLeft >= maxDistance & targetDistanceRight >= maxDistance) {
 
     //Forwards measurement
-    forwardsDelay = (2.5 * targetDistanceFront) - (maxDistance * 2.5);    //(Turns taget distance into milliseconds)-(turns max distance into milliseconds) is as safetyback up
+    forwardsDelay = targetDistanceFront - maxDistance;    //(Turns target distance into milliseconds)-(turns max distance into milliseconds) is as safetyback up
     distanceFront = (forwardsDelay / 1000) * 400;                               //distanceFront is used to measure the distance that the car will travelled.
 
     //Left measurement
     forwardsDelayLeft = (2.5 * targetDistanceLeft) - (maxDistance * 2.5); //(Turns taget distance into milliseconds)-(turns max distance into milliseconds) is as safetyback up
     distanceLeft = (forwardsDelayLeft / 1000) * 400; //distanceLeft is used to measure the distance that the car will travelled.
 
-    //Right mreasurement
-    forwardsDelayRight = (2.5 * targetDistanceRight) - (maxDistance * 2.5); //(Turns taget distance into milliseconds)-(turns max distance into milliseconds) is as safetyback up
+    //Right measurement
+    forwardsDelayRight = targetDistanceRight - maxDistance //(Turns taget distance into milliseconds)-(turns max distance into milliseconds) is as safetyback up
     distanceRight = (forwardsDelayRight / 1000) * 400;                             //distanceLeft is used to measure the distance that the car will travelled.
 
     if(distanceLeft<distanceFront&distanceLeft<distanceRight&distanceLeft>maxDistance){
@@ -202,7 +189,7 @@ void loop() {
     if (forwardsDelay>180){
       forwardsDelay=(forwardsDelay-125);
     }
-     
+
     leftMotor.Drive(255); //Turns left motor on to drive forwards
     rightMotor.Drive(255); //turns right motor on to drive forwards
 
@@ -215,9 +202,9 @@ void loop() {
 
     getDistance();        //Grab new distance reading start again.
   }
-  //
-  //
-  //
+
+
+
   //This is drive left if front reading is to close and left is distance is >then the right distance
 
   if (targetDistanceFront <= maxDistance & targetDistanceRight <= targetDistanceLeft) {
@@ -230,9 +217,9 @@ void loop() {
 
     getDistance();         //Grab new distance reading to start again
   }
-  //
-  //
-  //
+
+
+
   //This is drive left if front reading to close and right is distance is > then the left distance
   if (targetDistanceFront <= maxDistance & targetDistanceLeft <= targetDistanceRight) {
 
@@ -244,9 +231,9 @@ void loop() {
 
     getDistance();          //Grab new distacne reading to start again
   }
-  //
-  //
-  //
+
+
+
   //This is driveBetweenGaps
   if (targetDistanceFront >= maxDistance && targetDistanceLeft >= 80 && targetDistanceRight >= 80) {
     //Forwards measurement
@@ -284,9 +271,9 @@ void loop() {
 
     getDistance();            //Grab new distance reading to start again
   }
-  //
-  //
-  //
+
+
+
   //Turn left is front is blocked and left is greater then right
   if (targetDistanceFront <= maxDistance & targetDistanceLeft >= targetDistanceRight) {
 
@@ -298,9 +285,9 @@ void loop() {
 
     getDistance();            //Grab new distance reading to start again
   }
-  //
-  //
-  //
+
+
+
   //Turn left is something blocking left
   if (targetDistanceRight <= maxDistance) {
 
@@ -313,9 +300,9 @@ void loop() {
     getDistance();            //Grab new distance reading to start again
 
   }
-  //
-  //
-  //
+
+
+
   //Turn right if front is blocked and right is greater then left
   if (targetDistanceFront <= maxDistance & targetDistanceRight >= targetDistanceLeft) {
 
@@ -328,9 +315,9 @@ void loop() {
     getDistance();            //Grab new distance reading to start again
 
   }
-  //
-  //
-  //
+
+
+
   //Turn right
   if (targetDistanceLeft <= maxDistance) {
 
@@ -343,4 +330,28 @@ void loop() {
     getDistance();              //Grab new distance reading to start again
   }
 
+}
+
+
+float calculatePing() {
+  pingTime = pulseIn(echoPin, HIGH);             //measure pingTime
+  pingTime = pingTime / 1000000.;                //converts microSeconds to seconds
+  return pingTime;
+}
+
+
+void MotorMeasurement() {
+  digitalWrite(trigPin, LOW); //set the trigPin to low
+  delayMicroseconds(2000);    // pause in Microseconds
+  digitalWrite(trigPin, HIGH);// set trigPin to HIGH
+  delayMicroseconds(15);      // pause for 15 microseconds
+  digitalWrite(trigPin, LOW); // return trigpin to low
+  delayMicroseconds(15);      // delay again.
+}
+
+
+float calcDistance (float ping) {
+  targetDistance = speedOfSound * ping; //Measure distance traveled in seconds.
+  targetDistance = targetDistance / 2;  //Divides distance by 2 because the sound travels forwards and backwards before giving a signal
+  return targetDistance;
 }
