@@ -161,15 +161,15 @@ void loop() {
   if (targetDistanceFront >= maxDistance & targetDistanceLeft >= maxDistance & targetDistanceRight >= maxDistance) {
 
     //Forwards measurement
-    forwardsDelay = targetDistanceFront - maxDistance;    //(Turns target distance into milliseconds)-(turns max distance into milliseconds) 
+    forwardsDelay = (targetDistanceFront * 2) - maxDistance;    //(Turns target distance into milliseconds)-(turns max distance into milliseconds) 
     distanceFront = (forwardsDelay / 1000) * 400;                               //distanceFront is used to measure the distance that the car will travelled.
 
     //Left measurement
-    forwardsDelayLeft = targetDistanceFront - maxDistance; //(Turns taget distance into milliseconds)-(turns max distance into milliseconds)
+    forwardsDelayLeft = (targetDistanceFront * 2) - maxDistance; //(Turns taget distance into milliseconds)-(turns max distance into milliseconds)
     distanceLeft = (forwardsDelayLeft / 1000) * 400; //distanceLeft is used to measure the distance that the car will travelled.
 
     //Right measurement
-    forwardsDelayRight = targetDistanceRight - maxDistance; //(Turns taget distance into milliseconds)-(turns max distance into milliseconds)
+    forwardsDelayRight = (targetDistanceRight * 2) - maxDistance; //(Turns taget distance into milliseconds)-(turns max distance into milliseconds)
     distanceRight = (forwardsDelayRight / 1000) * 400;                             //distanceLeft is used to measure the distance that the car will travelled.
 
     if(distanceLeft<distanceFront&distanceLeft<distanceRight&distanceLeft>maxDistance){
