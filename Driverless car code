@@ -40,7 +40,7 @@ int servoPin = 2;      //Assign ServoPin to pin 2
 //Other variables
 float ping;
 
-//**Code that I copied as it's my first time using motors
+
 class Motor {
 
     int enablePin;
@@ -88,7 +88,7 @@ void motorInitiation() {
   digitalWrite(directionPin2RightMotor, HIGH);
   digitalWrite(directionPin1LeftMotor, LOW);
   digitalWrite(directionPin2LeftMotor, HIGH);
-} //** End of copied code
+} 
 
 
 //Function used to get distance reading, it's my first time using this function
